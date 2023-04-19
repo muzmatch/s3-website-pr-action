@@ -36,6 +36,22 @@ export default async (bucketName: string, uploadDirectory: string, environmentPr
         ErrorDocument: { Key: "index.html" },
       },
     }).promise();
+
+    await S3.putBucketPolicy({
+      Bucket: bucketName,
+      Policy: `{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::${bucketName}/*"
+        }
+    ]
+}`,
+    }).promise();
   } else {
     console.log("S3 Bucket already exists. Skipping creation...");
   }
