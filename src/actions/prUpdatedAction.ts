@@ -1,11 +1,11 @@
 import * as github from "@actions/github";
+import { ReposCreateDeploymentResponseData } from "@octokit/types";
+import githubClient from "../githubClient";
 import S3 from "../s3Client";
+import checkBucketExists from "../utils/checkBucketExists";
+import deactivateDeployments from "../utils/deactivateDeployments";
 import s3UploadDirectory from "../utils/s3UploadDirectory";
 import validateEnvVars from "../utils/validateEnvVars";
-import checkBucketExists from "../utils/checkBucketExists";
-import githubClient from "../githubClient";
-import deactivateDeployments from "../utils/deactivateDeployments";
-import { ReposCreateDeploymentResponseData } from "@octokit/types";
 
 export const requiredEnvVars = [
   "AWS_ACCESS_KEY_ID",
@@ -13,7 +13,11 @@ export const requiredEnvVars = [
   "GITHUB_TOKEN",
 ];
 
-export default async (bucketName: string, uploadDirectory: string, environmentPrefix: string) => {
+export default async (
+  bucketName: string,
+  uploadDirectory: string,
+  environmentPrefix: string
+) => {
   const websiteUrl = `http://${bucketName}.s3-website-us-east-1.amazonaws.com`;
   const { repo } = github.context;
   const branchName = github.context.payload.pull_request!.head.ref;
@@ -33,7 +37,7 @@ export default async (bucketName: string, uploadDirectory: string, environmentPr
       Bucket: bucketName,
       WebsiteConfiguration: {
         IndexDocument: { Suffix: "index.html" },
-        ErrorDocument: { Key: "index.html" },
+        ErrorDocument: { Key: "404/index.html" },
       },
     }).promise();
 
@@ -61,7 +65,9 @@ export default async (bucketName: string, uploadDirectory: string, environmentPr
   const deployment = await githubClient.repos.createDeployment({
     ...repo,
     ref: `refs/heads/${branchName}`,
-    environment: `${environmentPrefix || 'PR-'}${github.context.payload.pull_request!.number}`,
+    environment: `${environmentPrefix || "PR-"}${
+      github.context.payload.pull_request!.number
+    }`,
     auto_merge: false,
     transient_environment: true,
     required_contexts: [],
