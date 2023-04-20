@@ -6031,7 +6031,7 @@ exports.default = (bucketName, uploadDirectory, environmentPrefix) => __awaiter(
         yield githubClient_1.default.repos.createDeploymentStatus(Object.assign(Object.assign({}, repo), { deployment_id: deployment.data.id, state: "in_progress" }));
         console.log("Uploading files...");
         yield s3UploadDirectory_1.default(bucketName, uploadDirectory);
-        yield githubClient_1.default.repos.createDeploymentStatus(Object.assign(Object.assign({}, repo), { deployment_id: deployment.data.id, state: "success", environment_url: websiteUrl }));
+        yield githubClient_1.default.repos.createDeploymentStatus(Object.assign(Object.assign({}, repo), { deployment_id: deployment.data.id, state: "success", environment_url: `${websiteUrl}/en-US/` }));
         console.log(`Website URL: ${websiteUrl}`);
     }
 });

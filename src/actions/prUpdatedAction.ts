@@ -87,7 +87,7 @@ export default async (
       ...repo,
       deployment_id: deployment.data.id,
       state: "success",
-      environment_url: websiteUrl,
+      environment_url: `${websiteUrl}/en-US/`,
     });
 
     console.log(`Website URL: ${websiteUrl}`);
