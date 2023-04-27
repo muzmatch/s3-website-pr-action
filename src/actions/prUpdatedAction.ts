@@ -1,4 +1,10 @@
 import * as github from "@actions/github";
+import {
+  CreateBucketCommand,
+  PutBucketPolicyCommand,
+  PutBucketWebsiteCommand,
+  PutPublicAccessBlockCommand,
+} from "@aws-sdk/client-s3";
 import { ReposCreateDeploymentResponseData } from "@octokit/types";
 import githubClient from "../githubClient";
 import S3 from "../s3Client";
@@ -30,20 +36,36 @@ export default async (
 
   if (!bucketExists) {
     console.log("S3 bucket does not exist. Creating...");
-    await S3.createBucket({ Bucket: bucketName }).promise();
+    await S3.send(new CreateBucketCommand({ Bucket: bucketName }));
+
+    console.log("Update S3 bucket public policy...");
+    await S3.send(
+      new PutPublicAccessBlockCommand({
+        Bucket: bucketName,
+        PublicAccessBlockConfiguration: {
+          BlockPublicPolicy: false,
+          BlockPublicAcls: false,
+          IgnorePublicAcls: false,
+          RestrictPublicBuckets: false,
+        },
+      })
+    );
 
     console.log("Configuring bucket website...");
-    await S3.putBucketWebsite({
-      Bucket: bucketName,
-      WebsiteConfiguration: {
-        IndexDocument: { Suffix: "index.html" },
-        ErrorDocument: { Key: "404/index.html" },
-      },
-    }).promise();
+    await S3.send(
+      new PutBucketWebsiteCommand({
+        Bucket: bucketName,
+        WebsiteConfiguration: {
+          IndexDocument: { Suffix: "index.html" },
+          ErrorDocument: { Key: "404/index.html" },
+        },
+      })
+    );
 
-    await S3.putBucketPolicy({
-      Bucket: bucketName,
-      Policy: `{
+    await S3.send(
+      new PutBucketPolicyCommand({
+        Bucket: bucketName,
+        Policy: `{
     "Version": "2012-10-17",
     "Statement": [
         {
@@ -55,7 +77,8 @@ export default async (
         }
     ]
 }`,
-    }).promise();
+      })
+    );
   } else {
     console.log("S3 Bucket already exists. Skipping creation...");
   }
