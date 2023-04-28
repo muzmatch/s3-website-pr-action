@@ -35,39 +35,35 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
-const prUpdatedAction_1 = __importDefault(require("./actions/prUpdatedAction"));
-const main = () => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const bucketPrefix = core.getInput("bucket-prefix");
-        const folderToCopy = core.getInput("folder-to-copy");
-        const environmentPrefix = core.getInput("environment-prefix");
-        const prNumber = github.context.payload.pull_request.number;
-        const bucketName = `${bucketPrefix}-pr${prNumber}`;
-        console.log(`Bucket Name: ${bucketName}`);
-        const githubActionType = github.context.payload.action;
-        if (github.context.eventName === "pull_request") {
-            switch (githubActionType) {
-                case "opened":
-                case "reopened":
-                case "synchronize":
-                    yield (0, prUpdatedAction_1.default)(bucketName, folderToCopy, environmentPrefix);
-                    break;
-                case "closed":
-                    break;
-                default:
-                    console.log("PR not created, modified or deleted. Skiping...");
-                    break;
+const githubClient_1 = __importDefault(require("../githubClient"));
+exports.default = (repo, environmentPrefix) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    const environment = `${environmentPrefix || 'PR-'}${github.context.payload.pull_request.number}`;
+    const deployments = yield githubClient_1.default.graphql(`
+      query GetDeployments($owner: String!, $repo: String!, $environments: [String!]) {
+        repository(owner: $owner, name: $repo) {
+          deployments(first: 100, environments: $environments) {
+            nodes {
+              id
             }
+          }
         }
-        else {
-            console.log("Not a PR. Skipping...");
-        }
+      }`, Object.assign(Object.assign({}, repo), { environments: [environment] }));
+    const nodes = (_b = (_a = deployments.repository) === null || _a === void 0 ? void 0 : _a.deployments) === null || _b === void 0 ? void 0 : _b.nodes;
+    console.log(JSON.stringify(deployments));
+    if (nodes.length <= 0) {
+        console.log(`No exiting deployments found for pull request`);
+        return;
     }
-    catch (error) {
-        console.log(error);
-        core.setFailed(error);
+    for (const node of nodes) {
+        console.log(`Deleting existing deployment - ${node.id}`);
+        yield githubClient_1.default.graphql(`
+          mutation DeleteDeployment($id: ID!) {
+            deleteDeployment(input: {id: $id} ) {
+              clientMutationId
+            }
+          }
+        `, { id: node.id });
     }
 });
-main();

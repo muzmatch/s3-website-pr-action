@@ -35,39 +35,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
-const prUpdatedAction_1 = __importDefault(require("./actions/prUpdatedAction"));
-const main = () => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const bucketPrefix = core.getInput("bucket-prefix");
-        const folderToCopy = core.getInput("folder-to-copy");
-        const environmentPrefix = core.getInput("environment-prefix");
-        const prNumber = github.context.payload.pull_request.number;
-        const bucketName = `${bucketPrefix}-pr${prNumber}`;
-        console.log(`Bucket Name: ${bucketName}`);
-        const githubActionType = github.context.payload.action;
-        if (github.context.eventName === "pull_request") {
-            switch (githubActionType) {
-                case "opened":
-                case "reopened":
-                case "synchronize":
-                    yield (0, prUpdatedAction_1.default)(bucketName, folderToCopy, environmentPrefix);
-                    break;
-                case "closed":
-                    break;
-                default:
-                    console.log("PR not created, modified or deleted. Skiping...");
-                    break;
-            }
-        }
-        else {
-            console.log("Not a PR. Skipping...");
-        }
+const githubClient_1 = __importDefault(require("../githubClient"));
+exports.default = (repo, environmentPrefix) => __awaiter(void 0, void 0, void 0, function* () {
+    const environment = `${environmentPrefix || 'PR-'}${github.context.payload.pull_request.number}`;
+    const deployments = yield githubClient_1.default.repos.listDeployments({
+        repo: repo.repo,
+        owner: repo.owner,
+        environment,
+    });
+    const existing = deployments.data.length;
+    if (existing < 1) {
+        console.log(`No exiting deployments found for pull request`);
+        return;
     }
-    catch (error) {
-        console.log(error);
-        core.setFailed(error);
+    for (const deployment of deployments.data) {
+        console.log(`Deactivating existing deployment - ${deployment.id}`);
+        yield githubClient_1.default.repos.createDeploymentStatus(Object.assign(Object.assign({}, repo), { deployment_id: deployment.id, state: 'inactive' }));
     }
 });
-main();
