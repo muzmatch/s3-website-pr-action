@@ -15,6 +15,7 @@
     "@actions/github": "^3.0.0",
     "@aws-sdk/client-s3": "^3.321.1",
     "@octokit/types": "^5.0.0",
+    "@vercel/ncc": "^0.36.1",
     "mime-types": "^2.1.27",
     "recursive-readdir": "^2.2.2"
   },
@@ -25,7 +26,6 @@
     "@types/recursive-readdir": "^2.2.0",
     "@typescript-eslint/eslint-plugin": "^3.2.0",
     "@typescript-eslint/parser": "^3.2.0",
-    "@zeit/ncc": "^0.22.3",
     "eslint": "^7.2.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.21.2",

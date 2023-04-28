@@ -1712,10 +1712,10 @@
     "semver" "^7.3.2"
     "tsutils" "^3.17.1"
 
-"@zeit/ncc@^0.22.3":
-  "integrity" "sha512-jnCLpLXWuw/PAiJiVbLjA8WBC0IJQbFeUwF4I9M+23MvIxTxk5pD4Q8byQBSPmHQjz5aBoA7AKAElQxMpjrCLQ=="
-  "resolved" "https://registry.npmjs.org/@zeit/ncc/-/ncc-0.22.3.tgz"
-  "version" "0.22.3"
+"@vercel/ncc@^0.36.1":
+  "integrity" "sha512-S4cL7Taa9yb5qbv+6wLgiKVZ03Qfkc4jGRuiUQMQ8HGBD5pcNRnHeYM33zBvJE4/zJGjJJ8GScB+WmTsn9mORw=="
+  "resolved" "https://registry.npmjs.org/@vercel/ncc/-/ncc-0.36.1.tgz"
+  "version" "0.36.1"
 
 "abab@^2.0.3":
   "integrity" "sha512-tsFzPpcttalNjFBCFMqsKYQcWxxen1pgJR56by//QwvJc4/OUS3kPOOttx2tSIfjsylB0pYu7f5D3K1RCxUnUg=="
