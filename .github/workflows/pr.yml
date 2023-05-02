@@ -15,7 +15,7 @@ jobs:
       - name: Setup Node.js for use with actions
         uses: actions/setup-node@v3
         with:
-          node-version: "latest"
+          node-version: "16"
 
       - name: Yarn Install and Build
         run: |
