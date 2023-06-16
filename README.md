@@ -123,7 +123,9 @@ Replace `<YOUR_BUCKET_PREFIX>` with the same `bucket-prefix` value that you defi
                 "s3:DeleteObject",
                 "s3:PutBucketWebsite",
                 "s3:PutObjectAcl",
-                "s3:ListBucket"
+                "s3:ListBucket", 
+                "s3:PutBucketPublicAccessBlock",
+                "s3:PutBucketOwnershipControls"
             ],
             "Resource": [
                 "arn:aws:s3:::<YOUR_BUCKET_PREFIX>-*",
